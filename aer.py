@@ -17,6 +17,8 @@ DEFAULT_BURNUP = 0
 #  que se puede ver cargando las bases de datos aerS.cdb(cálculo con fuente) y aer_eq.cdb(cálculo crítico)
 #  el movimiento dentro de la sección 5 sería (para subir verticalmente en la grilla hexagonal)
 #  (q,r) - > (q+1,r) == (x,y) -> (x+1,y+1)
+
+
 class AerMap:
     """
 
@@ -223,13 +225,13 @@ class AerEvolution(AerModel):
         """
         return AddableDict(self._Q).as_array()
 
-    def calculate_source(self,**kwargs):
+    def calculate_source(self, **kwargs):
         print('- Calculando la fuente')
         DERIVATIVE = kwargs['DERIVATIVE']
         if DERIVATIVE:
             dt = kwargs['dt']
         else:
-            dt=1
+            dt = 1
         Vmesh = self.__Geom.Vmesh()
         NPRC = 6
         for group in range(self.Flux.shape[-1]):
@@ -249,7 +251,7 @@ class AerEvolution(AerModel):
 
                             self._Q[group][state][nx][ny][nz] = \
                                 self.chi_g[group] * sum([_Lmk[prc] * _C[prc] for prc in range(NPRC)]) \
-                                + ( _invV / dt * T_1Flux * Vmesh if DERIVATIVE else 0)
+                                + (_invV / dt * T_1Flux * Vmesh if DERIVATIVE else 0)
 
     def move_control_rods(self, **kwargs):
         Threshold = 1.0
@@ -262,7 +264,8 @@ class AerEvolution(AerModel):
         if Time > Threshold:
             Insertion_Velocity = 250 / 10.0  # Hasta el fondo del nucleo en 10 segundos
             Insertion_CR_21 = 8 + (Insertion_Velocity * Time) // 25 if Time <= 2.0 else 10
-            Insertion_CR_SS = (Insertion_Velocity * Time) // 25 if Time <= 11.0 else 10  # Control Rod Secutiry System (23,25)
+            Insertion_CR_SS = (Insertion_Velocity * Time) // 25 if Time <= 11.0 else 10
+            # Control Rod Secutiry System (23,25)
             self.SCRAM(Insertion_CR_SS)
             self.InsertControlRod(Insertion_CR_21, 21)
             # TODO testear este método y llevarlo a archivo
